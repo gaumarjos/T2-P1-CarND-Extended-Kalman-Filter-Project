@@ -1,6 +1,8 @@
 #include <iostream>
 #include "tools.h"
 
+#define VERYSMALL 0.0001
+
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
@@ -53,17 +55,15 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	float vx = x_state(2);
 	float vy = x_state(3);
 
-	//pre-compute a set of terms to avoid repeated calculation
+	//pre-compute a set of terms to avoid repeated calculation and check division by zero
 	float c1 = px*px+py*py;
+	if(fabs(c1) < VERYSMALL) {
+		cout << "CalculateJacobian () - Error - Division by Zero" << endl;
+		c1 = VERYSMALL;
+	}
 	float c2 = sqrt(c1);
 	float c3 = (c1*c2);
-
-	//check division by zero
-	if(fabs(c1) < 0.0001){
-		cout << "CalculateJacobian () - Error - Division by Zero" << endl;
-		return Hj;
-	}
-
+	
 	//compute the Jacobian matrix
 	Hj << (px/c2),               (py/c2),               0,     0,
 		    -(py/c1),              (px/c1),               0,     0,
